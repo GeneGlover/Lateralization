@@ -1,0 +1,405 @@
+---
+title: "Initial Work"
+output: html_document
+date: "2024-04-25"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+ggplot(aes(x=Individual, fill=Direction), data= Handedness_Mastersheet) +
+  geom_bar(position = "dodge") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(title="Handedness by Individual", x="Individual", y="Count")
+```
+
+
+
+
+```{r}
+pwr.chisq.test(w =.3, N = , df = 1, sig.level = .05, power = .8)
+```
+
+
+
+
+```{r}
+Cmal_Handedness_GLM <- glm(Proportion_R~Individual+ Trial + Experimenter_Hand + Experimenter, data = Cmal_Handedness)
+summary(Cmal_Handedness_GLM)
+```
+
+```{r}
+Cmal_Handedness$Individual <- as.factor(Cmal_Handedness$Individual)
+Cmal_Handedness$Individual <- relevel(Cmal_Handedness$Individual, ref = "Cmal10")
+Cmal_Handedness_GLM2 <- glm(Proportion_R~  Individual + Trial + Experimenter, data = Cmal_Handedness)
+summary(Cmal_Handedness_GLM2)
+```
+
+```{r}
+Cmal_Handedness <- Cmal_Handedness %>%
+  mutate(Direction_numeric = recode(Direction, "R" = 1, "L" = 0))
+
+Cmalmodel2 <- glm(Direction_numeric ~ Experimenter + Trial + Individual + Experimenter_Hand, data = Cmal_Handedness, family = binomial, na.action = na.fail)
+
+dredged_Cmalmodel2<-dredge(global.model = Cmalmodel2, beta = c("none", "sd", "partial.sd"),evaluate = TRUE)
+dredged_Cmalmodel2
+
+
+summary(Cmalmodel2)
+```
+
+```{r}
+Cmal_Handedness <- Cmal_Handedness %>%
+  mutate(Limb_numeric = recode(First_limb_on_Dowel, "R" = 1, "L" = 0))
+
+Cmalmodel2_Limb <- glm(Limb_numeric ~ Experimenter + Trial + Individual + Direction + Experimenter_Hand, data = Cmal_Handedness, family = binomial)
+
+summary(Cmalmodel2_Limb)
+```
+
+
+
+```{r}
+
+Bdam_Handedness <- Bdam_Handedness %>%
+  mutate(Direction_numeric = recode(Direction, "R" = 1, "L" = 0))
+
+Bdam_Handedness$Individual <- as.factor(Bdam_Handedness$Individual)
+
+Bdam_Handedness$Individual <- relevel(Bdam_Handedness$Individual, ref = "Bdam04")
+
+Bdammodel <- glm(Direction_numeric ~  Trial + Individual + Experimenter_Hand, data = Bdam_Handedness, family = binomial, na.action = na.fail)
+
+dredged_Bdammodel<-dredge(global.model = Bdammodel, beta = c("none", "sd", "partial.sd"),evaluate = TRUE)
+dredged_Bdammodel
+
+summary(Bdammodel)
+```
+
+
+
+```{r}
+
+Bdam_Handedness <- Bdam_Handedness %>%
+  mutate(Direction_numeric = recode(Direction, "R" = 1, "L" = 0))
+
+Bdammodel2 <- glm(Direction_numeric ~  Trial + Tail_Length + Experimenter_Hand, data = Bdam_Handedness, family = binomial)
+
+summary(Bdammodel2)
+```
+
+
+```{r}
+Bdam_Handedness <- Bdam_Handedness %>%
+  mutate(Limb_numeric = recode(First_limb_on_Dowel, "R" = 1, "L" = 0))
+
+Bdammodel_Limb <- glm(Limb_numeric ~  Trial + Individual + Direction + Experimenter_Hand, data = Bdam_Handedness, family = binomial)
+
+summary(Bdammodel_Limb)
+```
+
+
+
+```{r}
+Ccalyp_Handedness <- Ccalyp_Handedness %>%
+  mutate(Direction_numeric = recode(Direction, "R" = 1, "L" = 0))
+
+
+Ccalyp_Handedness$Individual <- as.factor(Ccalyp_Handedness$Individual)
+
+Ccalyp_Handedness$Individual <- relevel(Ccalyp_Handedness$Individual, ref = "CcalypF05")
+
+Ccalypmodel <- glm(Direction_numeric ~  Trial + Individual , data = Ccalyp_Handedness, family = binomial)
+
+summary(Ccalypmodel)
+```
+
+```{r}
+Ccalyp_Handedness <- Ccalyp_Handedness %>%
+  mutate(Direction_numeric = recode(Direction, "R" = 1, "L" = 0))
+
+Ccalypmodel2 <- glm(Direction_numeric ~  Trial  + Tail_Length , data = Ccalyp_Handedness, family = binomial)
+
+summary(Ccalypmodel2)
+```
+
+
+```{r}
+Ccalyp_Handedness <- Ccalyp_Handedness %>%
+  mutate(Limb_numeric = recode(First_limb_on_Dowel, "R" = 1, "L" = 0))
+
+Ccalypmodel_Limb <- glm(Limb_numeric ~  Trial + Individual + Direction, data = Ccalyp_Handedness, family = binomial)
+
+summary(Ccalypmodel_Limb)
+```
+
+
+
+
+
+
+
+
+```{r}
+Handedness_Mastersheet <- Handedness_Mastersheet %>%
+  mutate(Direction_numeric = recode(Direction, "R" = 1, "L" = 0))
+
+
+TotalHandednessModel <- glm(Direction_numeric ~  Trial + Species + Tail_Length, data = Handedness_Mastersheet, family = binomial)
+
+
+
+
+summary(TotalHandednessModel)
+```
+
+
+
+```{r}
+Handedness_Mastersheet <- Handedness_Mastersheet %>%
+  mutate(Direction_numeric = recode(Direction, "R" = 1, "L" = 0),
+         Bilaterality = abs(Proportion_R - 0.5))
+
+
+
+TotalHandednessModel <- glm(Bilaterality ~  Trial + Species + Tail_Length, data = Handedness_Mastersheet, family = binomial)
+
+summary(TotalHandednessModel)
+```
+
+
+
+
+```{r}
+Handedness_Mastersheet <- Handedness_Mastersheet %>%
+  mutate(Direction_numeric = recode(Direction, "R" = 1, "L" = 0))
+
+Handedness_Mastersheet$Individual <- as.factor(Handedness_Mastersheet$Individual)
+
+Handedness_Mastersheet$Individual <- relevel(Handedness_Mastersheet$Individual, ref = "Bdam04")
+
+TotalHandednessModel2 <- glm(Direction_numeric ~  Trial + Individual, data = Handedness_Mastersheet, family = binomial)
+
+summary(TotalHandednessModel2)
+```
+
+
+```{r}
+Handedness_Mastersheet <- Handedness_Mastersheet %>%
+  mutate(Limb_numeric = recode(First_limb_on_Dowel, "R" = 1, "L" = 0))
+
+Totalmodel_Limb <- glm(Limb_numeric ~  Trial + Individual + Direction , data = Handedness_Mastersheet, family = binomial)
+
+
+summary(Totalmodel_Limb)
+```
+
+
+```{r}
+Handedness_Mastersheet <- Handedness_Mastersheet %>%
+  mutate(Limb_numeric = recode(First_limb_on_Dowel, "R" = 1, "L" = 0))
+
+Totalmodel_Limb2 <- glm(Limb_numeric ~  Trial + Species + Tail_Length + Direction , data = Handedness_Mastersheet, family = binomial)
+
+summary(Totalmodel_Limb2)
+```
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+ggplot(aes(x=Trial_Total, y=Bilaterality), data= Handedness_Mastersheet) +
+  geom_smooth()
+```
+
+
+```{r}
+ggplot(aes(x=Trial_Total, y=Directional_Bilaterality, color=Individual), data= Handedness_Mastersheet) +
+  geom_line()
+```
+
+
+
+```{r}
+chisq.test(Handedness_Mastersheet$Individual, Handedness_Mastersheet$Direction)
+```
+
+```{r}
+Fu<- function(x) 0.5 + 1.96*sqrt((.5*(1-.5))/x)
+
+Fl<- function(x) 0.5 - 1.96*sqrt((.5*(1-.5))/x)
+```
+
+
+```{r}
+ggplot(aes(x=Trial_Total, y=Proportion_R, color=Individual), data= Handedness_Mastersheet) +
+  geom_line()+
+   stat_function(fun = Fu, color="black")+
+   stat_function(fun = Fl, color="black")+
+  labs(title="Chamaeleo calyptratus ", x="Trial", y="Proportion Right Turn")
+```
+
+
+
+```{r}
+noBrev_Handedness <- Handedness_Mastersheet %>%
+  filter(Species == c("Cmal", "Ccalyp", "Bdam"))
+
+ggplot(aes(x=Trial_Total, y=Proportion_R, color=Species), data= noBrev_Handedness) +
+  geom_smooth()+
+   stat_function(fun = Fu, color="black")+
+   stat_function(fun = Fl, color="black")+
+  labs(title="", x="Trial", y="Proportion Right Turn")+ theme(
+  axis.title = element_text(size = 16),       # Font size for axis titles
+  axis.text = element_text(size = 14),        # Font size for axis text (tick labels)
+  legend.title = element_text(size = 15),     # Font size for legend title
+  legend.text = element_text(size = 13)       # Font size for legend labels
+  )
+```
+
+
+```{r}
+Cmal_Handedness <- Handedness_Mastersheet %>%
+  filter(Species == "Cmal")
+
+ggplot(aes(x=Trial_Total, y=Proportion_R, color=Individual), data= Cmal_Handedness) +
+  geom_line()+
+   stat_function(fun = Fu, color="black")+
+   stat_function(fun = Fl, color="black")+
+  labs(title="", x="Trial", y="Proportion Right Turn")+ theme(
+  axis.title = element_text(size = 16),       # Font size for axis titles
+  axis.text = element_text(size = 14),        # Font size for axis text (tick labels)
+  legend.title = element_text(size = 15),     # Font size for legend title
+  legend.text = element_text(size = 13)       # Font size for legend labels
+)
+```
+
+```{r}
+Bdam_Handedness <- Handedness_Mastersheet %>%
+  filter(Species == "Bdam")
+
+ggplot(aes(x=Trial_Total, y=Proportion_R, color=Individual), data= Bdam_Handedness) +
+  geom_line()+
+   stat_function(fun = Fu, color="black")+
+   stat_function(fun = Fl, color="black")+
+  labs(title="", x="Trial", y="Proportion Right Turn")+ theme(
+  axis.title = element_text(size = 16),       # Font size for axis titles
+  axis.text = element_text(size = 14),        # Font size for axis text (tick labels)
+  legend.title = element_text(size = 15),     # Font size for legend title
+  legend.text = element_text(size = 13)       # Font size for legend labels
+  )
+```
+
+
+```{r}
+Ccalyp_Handedness <- Handedness_Mastersheet %>%
+  filter(Species == "Ccalyp")
+
+ggplot(aes(x=Trial_Total, y=Proportion_R, color=Individual), data= Ccalyp_Handedness) +
+  geom_line()+
+   stat_function(fun = Fu, color="black")+
+   stat_function(fun = Fl, color="black")+
+  labs(title="", x="Trial", y="Proportion Right Turn") + theme(
+  axis.title = element_text(size = 16),       # Font size for axis titles
+  axis.text = element_text(size = 14),        # Font size for axis text (tick labels)
+  legend.title = element_text(size = 15),     # Font size for legend title
+  legend.text = element_text(size = 13)       # Font size for legend labels
+  )
+```
+
+
+
+
+```{r}
+Cbrev_Handedness <- Handedness_Mastersheet %>%
+  filter(Species == "Cbrev")
+
+ggplot(aes(x=Trial_Total, y=Proportion_R, color=Individual), data= Cbrev_Handedness) +
+  geom_line()+
+   stat_function(fun = Fu, color="black")+
+   stat_function(fun = Fl, color="black")+
+  labs(title="", x="Time", y="VCO2")
+```
+
+
+
+
+
+ggplot(aes(x = Nocturnal_Data2$Perch_Type, fill= Nocturnal_Data2$Weather_Day), data= Nocturnal_Data2) +
+  geom_bar() +
+  labs(title="Perch Type by Weather Conditions", x="Perch Type", y="Chameleon Count", fill="Weather Conditions")
+
+
+
+
+```{r}
+Ccalyp_Handedness <- Handedness_Mastersheet %>%
+  filter(Species == "Ccalyp",
+         Direction == c("L", "R"))
+
+
+ggplot(aes(x=Direction, fill=First_limb_on_Dowel), data= Ccalyp_Handedness) +
+  geom_bar()+
+  scale_fill_manual(values = c("R" = "#619CFF", "B" = "#00BA38", "L" = "#F8766D"))+
+  labs(title="", x="Turn Direction", y="Number of Trials")+ theme(
+  axis.title = element_text(size = 16),       # Font size for axis titles
+  axis.text = element_text(size = 14),        # Font size for axis text (tick labels)
+  legend.title = element_text(size = 15),     # Font size for legend title
+  legend.text = element_text(size = 13)       # Font size for legend labels
+  )
+```
+
+
+
+```{r}
+
+ggplot(aes(x=Direction, fill=First_limb_on_Dowel), data= Bdam_Handedness) +
+  geom_bar()+
+  labs(title="", x="Turn Direction", y="Number of Trials")+
+  scale_fill_manual(values = c("R" = "#619CFF", "B" = "#00BA38", "L" = "#F8766D"))+ theme(
+  axis.title = element_text(size = 16),       # Font size for axis titles
+  axis.text = element_text(size = 14),        # Font size for axis text (tick labels)
+  legend.title = element_text(size = 15),     # Font size for legend title
+  legend.text = element_text(size = 13)       # Font size for legend labels
+  )
+```
+
+
+```{r}
+Cmal_Handedness <- Handedness_Mastersheet %>%
+  filter(Species == "Cmal",
+         First_limb_on_Dowel == c("L", "R"))
+
+ggplot(aes(x=Direction, fill=First_limb_on_Dowel), data= Cmal_Handedness) +
+  geom_bar()+
+  labs(title="", x="Turn Direction", y="Number of Trials")+
+  scale_fill_manual(values = c("R" = "#619CFF", "B" = "#00BA38", "L" = "#F8766D"))+ theme(
+  axis.title = element_text(size = 16),       # Font size for axis titles
+  axis.text = element_text(size = 14),        # Font size for axis text (tick labels)
+  legend.title = element_text(size = 15),     # Font size for legend title
+  legend.text = element_text(size = 13)       # Font size for legend labels
+  )
+```
+
+
+
+
+```{r}
+Limb_Handedness <- Handedness_Mastersheet %>%
+  filter(Direction == c("L", "R"))
+
+ggplot(aes(x=Direction, fill=First_limb_on_Dowel), data= Limb_Handedness) +
+  geom_bar()+
+  labs(title="Overall", x="Turn Direction", y="Number of Trials")+
+  scale_fill_manual(values = c("R" = "#619CFF", "B" = "#00BA38", "L" = "#F8766D"))
+```
+
