@@ -1,0 +1,176 @@
+---
+title: "Eye Dominance"
+output: html_document
+date: "2024-11-09"
+---
+
+
+T2 = standardize(Time),
+         STT = as.integer(as.factor(SpeciesTrialType)),
+         CO2 = standardize(Average_VCO2),
+         Species1 = as.integer(as.factor(Species)),
+         TrialType1 = as.integer(as.factor(TrialType)),
+         CPercent = standardize(Cricket_Percent),
+         TrialType,
+         Species
+
+```{r}
+EyeTest1  = EyeTest %>% 
+  mutate(CrickettoGlance = EyeTest$SFG - EyeTest$SCM,
+         GlancetoTurn = EyeTest$SHT - EyeTest$SFG,
+         CrickettoTurn = EyeTest$SHT - EyeTest$SCM,
+         TurntoProtrusion = EyeTest$STP - EyeTest$SHT,
+         ProtrusiontoProjection = EyeTest$SP - EyeTest$STP,
+         GlancetoProjection = EyeTest$SP - EyeTest$SFG,
+         Added_Time = replace_na(Added_Time, 0),
+         TotalTime = (EyeTest$Frames_Total/ EyeTest$FPS) + EyeTest1$Added_Time)
+
+
+EyeTest1$Added_Time
+EyeTest1$TotalTime
+```
+
+
+```{r}
+EyeTest1$Individual <- as.factor(EyeTest1$Individual)
+
+EyeTest1$Trial <- as.factor(EyeTest1$Trial)
+EyeTest1$D <- as.factor(EyeTest1$D)
+
+
+GlancetoTurnModel <- glm(GlancetoTurn ~ D + Individual + CM + SCM, data = EyeTest1)
+
+summary(GlancetoTurnModel)
+```
+
+```{r}
+GlancetoTurnModelnoSCM <- glm(GlancetoTurn ~ D + Individual + CM , data = EyeTest1)
+
+summary(GlancetoTurnModelnoSCM)
+```
+
+
+Handedness_Mastersheet$Individual <- relevel(Handedness_Mastersheet$Individual, ref = "Bdam04")
+
+```{r}
+EyeTest1$Individual <- as.factor(EyeTest1$Individual)
+EyeTest1$Individual <- relevel(EyeTest1$Individual, ref = "CcalypF05")
+
+TotalTimeModel <- glm(TotalTime ~Individual * D, data = EyeTest1)
+
+summary(TotalTimeModel)
+```
+
+
+```{r}
+
+
+CrickettoTurnModel <- glm(CrickettoTurn ~ D + CM + Individual  , data = EyeTest1)
+
+summary(CrickettoTurnModel)
+```
+
+
+
+
+
+```{r}
+ggplot(aes(x=D, y=CrickettoGlance), data= EyeTest1) +
+  geom_boxplot() +
+  labs(title="", x="Time", y="VCO2")
+
+mean(subset(EyeTest1$CrickettoGlance, EyeTest1$D == "R"))
+sd(subset(EyeTest1$CrickettoGlance, EyeTest1$D == "R"))
+
+mean(subset(EyeTest1$CrickettoGlance, EyeTest1$D == "L"))
+sd(subset(EyeTest1$CrickettoGlance, EyeTest1$D == "L"))
+
+```
+```{r}
+ggplot(aes(x=D, y=GlancetoTurn, color = Individual), data= EyeTest1) +
+  geom_boxplot() +
+  labs(title="VCO2 Over Time 7p", x="Time", y="VCO2")
+
+mean(subset(EyeTest1$GlancetoTurn, EyeTest1$D == "R"))
+sd(subset(EyeTest1$GlancetoTurn, EyeTest1$D == "R"))
+
+
+mean(subset(EyeTest1$GlancetoTurn, EyeTest1$D == "L")) 
+sd(subset(EyeTest1$GlancetoTurn, EyeTest1$D == "L"))
+```
+
+
+
+```{r}
+ggplot(aes(x=D, y=CrickettoTurn, color = Individual), data= EyeTest1) +
+  geom_boxplot() +
+  labs(title="VCO2 Over Time 7p", x="Time", y="VCO2")
+
+mean(subset(EyeTest1$CrickettoTurn, EyeTest1$D == "R"))
+sd(subset(EyeTest1$CrickettoTurn, EyeTest1$D == "R"))
+
+mean(subset(EyeTest1$CrickettoTurn, EyeTest1$D == "L"))
+sd(subset(EyeTest1$CrickettoTurn, EyeTest1$D == "L"))
+```
+
+
+```{r}
+ggplot(aes(x=D, y=TurntoProtrusion), data= EyeTest1) +
+  geom_boxplot() +
+  labs(title="VCO2 Over Time 7p", x="Time", y="VCO2")
+
+mean(subset(EyeTest1$TurntoProtrusion, EyeTest1$D == "R"))
+sd(subset(EyeTest1$TurntoProtrusion, EyeTest1$D == "R"))
+
+mean(subset(EyeTest1$TurntoProtrusion, EyeTest1$D == "L"))
+sd(subset(EyeTest1$TurntoProtrusion, EyeTest1$D == "L"))
+```
+
+
+```{r}
+ggplot(aes(x=D, y=ProtrusiontoProjection), data= EyeTest1) +
+  geom_boxplot() +
+  labs(title="VCO2 Over Time 7p", x="Time", y="VCO2")
+
+mean(subset(EyeTest1$ProtrusiontoProjection, EyeTest1$D == "R"))
+sd(subset(EyeTest1$ProtrusiontoProjection, EyeTest1$D == "R"))
+
+mean(subset(EyeTest1$ProtrusiontoProjection, EyeTest1$D == "L"))
+sd(subset(EyeTest1$ProtrusiontoProjection, EyeTest1$D == "L"))
+```
+
+
+```{r}
+ggplot(aes(x= Individual, y=GlancetoProjection, color = D), data= EyeTest1) +
+  geom_boxplot() +
+  labs(title="VCO2 Over Time 7p", x="Time", y="VCO2")+
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 3, color = "red")+
+  scale_y_continuous(limits = c(0,40))
+
+mean(subset(EyeTest1$GlancetoProjection, EyeTest1$D == "R"))
+sd(subset(EyeTest1$GlancetoProjection, EyeTest1$D == "R"))
+
+mean(subset(EyeTest1$GlancetoProjection, EyeTest1$D == "L"))
+sd(subset(EyeTest1$GlancetoProjection, EyeTest1$D == "L"))
+```
+
+
+```{r}
+ggplot(aes(x=Individual, y=TotalTime, color = D), data= EyeTest1) +
+  geom_boxplot() +
+  labs(title="Total Time to Projection", x="Time (seconds)", y="Individual", color = "Direction")+ 
+  theme(
+  axis.title = element_text(size = 16),       # Font size for axis titles
+  axis.text = element_text(size = 14),        # Font size for axis text (tick labels)
+  legend.title = element_text(size = 15),     # Font size for legend title
+  legend.text = element_text(size = 13), # Font size for legend labels
+  plot.title = element_text(size = 20),
+  axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+mean(subset(EyeTest1$TotalTime, EyeTest1$D == "R"))
+sd(subset(EyeTest1$TotalTime, EyeTest1$D == "R"))
+
+mean(subset(EyeTest1$TotalTime, EyeTest1$D == "L"))
+sd(subset(EyeTest1$TotalTime, EyeTest1$D == "L"))
+```
